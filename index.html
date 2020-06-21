@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Prase Palindrome</title>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td>Phrase: </td>
+				<td><input id="phrase_input" type="text"></td>
+			</tr>
+			<tr>
+				<td>Palindroms Number:</td>
+				<td><input id="anagrams_num"></td>
+			</tr>
+			<tr>
+				<td><button id="result">Show Result</button></td>
+			</tr>
+		</table>
+		<script type="text/javascript" src="english_words.js"></script>
+		<script type="text/javascript">
+			//var words_list --> english_words.js
+			var button = document.getElementById("result");
+			var anagram_phrases_array = [];
+			var words_match_array = [];
+
+
+			button.addEventListener("click", function() {
+
+				var anagrams_num = document.getElementById("anagrams_num").value;
+				var input_string = document.getElementById("phrase_input").value.replace(/\s/g, '');
+
+				words_list.map(function(tmp_word) {
+
+					phrase_copy = input_string;
+					var char_matches = 0;
+
+					tmp_word.split("").map(function(character) { 
+						if(phrase_copy.includes(character)) {
+							phrase_copy = phrase_copy.substr(0, phrase_copy.indexOf(character)) + phrase_copy.substr(phrase_copy.indexOf(character) + 1);
+							char_matches++;
+						}
+					});
+
+					if(tmp_word.length == char_matches) {
+						words_match_array.push(tmp_word);
+					}
+				});
+				
+
+				console.log(words_match_array);
+			});
+
+			/*function pushWordToArray(tmp_word) {
+				
+				partial_words_match_array.push({string : tmp_word,
+													strlen : tmp_word.length,
+													numberOfCharMatched: 1});
+			}*/
+		</script>
+	</body>
+</html>
