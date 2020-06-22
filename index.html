@@ -37,8 +37,8 @@
 
 					tmp_word.split("").map(function(character) { 
 						if(phrase_copy.includes(character)) {
-							phrase_copy = phrase_copy.substr(0, phrase_copy.indexOf(character)) + phrase_copy.substr(phrase_copy.indexOf(character) + 1);
-							char_matches++;
+						  phrase_copy = phrase_copy.substr(0, phrase_copy.indexOf(character)) + phrase_copy.substr(phrase_copy.indexOf(character) + 1);
+						  char_matches++;
 						}
 					});
 
@@ -48,15 +48,28 @@
 				});
 				
 
-				console.log(words_match_array);
+				//console.log(words_match_array);
+
+				var potential_anagram = [];
+
+				words_match_array.map(function(tmp_word) {
+					phrase_copy = input_string;
+					
+					tmp_word.split("").map(function(character) {
+						phrase_copy = phrase_copy.substr(0, phrase_copy.indexOf(character)) + phrase_copy.substr(phrase_copy.indexOf(character) + 1);
+
+						
+
+					});
+				});
+
+				
+				
 			});
 
-			/*function pushWordToArray(tmp_word) {
-				
-				partial_words_match_array.push({string : tmp_word,
-													strlen : tmp_word.length,
-													numberOfCharMatched: 1});
-			}*/
+			
+
+			
 		</script>
 	</body>
 </html>
