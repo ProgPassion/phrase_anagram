@@ -17,6 +17,8 @@
 				<td><button id="result">Show Result</button></td>
 			</tr>
 		</table>
+		<div id="output_result">
+		</div>
 		<script type="text/javascript" src="english_words.js"></script>
 		<script type="text/javascript">
 			//var words_list --> english_words.js
@@ -48,23 +50,38 @@
 				});
 				
 
-				//console.log(words_match_array);
+				console.log(words_match_array);
 
-				var potential_anagram = [];
 
-				words_match_array.map(function(tmp_word) {
-					phrase_copy = input_string;
-					
-					tmp_word.split("").map(function(character) {
-						phrase_copy = phrase_copy.substr(0, phrase_copy.indexOf(character)) + phrase_copy.substr(phrase_copy.indexOf(character) + 1);
+				words_match_array.map(function(word) {
 
-						
+					var phrase_copy = input_string;
+					var potential_phrase = [];
 
+					potential_phrase.push(word);
+
+					words_match_array.map(function(word_sec) {
+
+						var char_matches = 0;
+						if(word_sec.length <= phrase_copy.length && word !== word_sec) {
+
+							word_sec.split("").map(function(character) { 
+								if(phrase_copy.includes(character)) {
+								   phrase_copy = phrase_copy.substr(0, phrase_copy.indexOf(character)) + phrase_copy.substr(phrase_copy.indexOf(character) + 1);
+								   char_matches++;
+								}
+							});
+							if(word_sec.length == char_matches) {
+								potential_phrase.push(potential_phrase);
+							}
+						}
 					});
+
+					if(potential_phrase.join("").length === input_string.length) {
+						anagram_phrases_array.push(potential_phrase);
+					}	
 				});
 
-				
-				
 			});
 
 			
