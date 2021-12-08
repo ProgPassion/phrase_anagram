@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Prase Palindrome</title>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td>Phrase: </td>
+				<td><input id="phrase_input" type="text"></td>
+			</tr>
+			<tr>
+				<td>Palindroms Number:</td>
+				<td><input id="anagrams_num"></td>
+			</tr>
+			<tr>
+				<td><button id="result">Show Result</button></td>
+			</tr>
+		</table>
+		<div id="output_phrase"></div>
+		<script type="text/javascript" src="english_words.js"></script>
+		<script type="text/javascript">
+			//var words_list --> english_words.js
+			var button = document.getElementById("result");
+			var anagram_phrases_array = [];
+			var words_match_array = [];
+
+			var wordIndex = 0;
+			var phrases_combination_not_working = [];
+
+
+			button.addEventListener("click", function() {
+
+				var anagrams_num = document.getElementById("anagrams_num").value;
+				var input_string = document.getElementById("phrase_input").value.replace(/\s/g, '');
+
+				words_list.forEach(function(tmp_word) {
+
+					var input_string_array = input_string.split("");
+					var tmp_word_array = tmp_word.split("");
+
+					input_string_array.forEach(function(character) {
+						if(tmp_word_array.includes(character)) {
+							tmp_word_array.splice(tmp_word_array.indexOf(character), 1);
+						}
+					});
+
+					if(tmp_word_array.length == 0) {
+						words_match_array.push(tmp_word);
+					}
+				});
+				console.log(words_match_array);
+
+				//findAnagramPhrases(input_string.split(""), anagrams_num);
+			});
+
+			
+			function findAnagramPhrases(input_string_array, anagrams_num) {
+
+				function removeCharsFromInputStringArray(word) {
+					
+					for(let i = 0; i < word.length; i++) {
+						input_string_array.splice(input_string_array.indexOf(word[i]), 1);
+					}
+				}
+
+				var potential_anagram_phrase = [];
+
+				
+
+				for(let i = wordIndex; i < words_match_array.length; i++) {
+					if(checkIfWordIsSubstrOfInput(words_match_array[i], input_string_array)) {
+						removeCharsFromInputStringArray(words_match_array[i]);
+						potential_anagram_phrase.push(words_match_array[i]);	
+					}
+
+				}
+
+				if(input_string_array.length == 0) {
+					anagram_phrases_array.push(potential_anagram_phrase);
+					anagrams_num--;
+				}
+				else {
+					phrases_combination_not_working = [...potential_anagram_phrase];
+					phrases_combination_not_working.splice(0, 1);
+				}
+
+				
+			
+			}
+
+			function checkIfWordIsSubstrOfInput(word, input_string_array) {
+
+				let word_array = word.split("");
+
+				input_string_array.forEach(function(input_char) {
+					if(word_array.includes(input_char)) {
+						word_array.splice(word_array.indexOf(input_char), 1);
+					}
+				});
+
+				return (word_array.length == 0);
+			}
+
+
+			
+		</script>
+	</body>
+</html>
