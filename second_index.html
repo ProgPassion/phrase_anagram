@@ -22,6 +22,7 @@
 		<script type="text/javascript">
 			//var words_list --> english_words.js
 			var button = document.getElementById("result");
+			var output_phrases = document.getElementById("output_phrase");
 			
 			var anagram_phrases_array = [];
 			var words_match_array = [];
@@ -33,6 +34,26 @@
 
 			var word_index = 0;
 
+
+			function shuffle(array) {
+				let currentIndex = array.length,  randomIndex;
+
+				// While there remain elements to shuffle...
+				while (currentIndex != 0) {
+
+					// Pick a remaining element...
+					randomIndex = Math.floor(Math.random() * currentIndex);
+					currentIndex--;
+
+					// And swap it with the current element.
+					[array[currentIndex], array[randomIndex]] = [
+					  array[randomIndex], array[currentIndex]];
+				}
+
+				return array;
+			}
+
+			shuffle(words_list);
 
 			button.addEventListener("click", function() {
 
@@ -101,19 +122,70 @@
 				}		
 
 
+
+				let last_word;
+
+				function removeLastWordFromPotentialAnagram() {
+					last_word = potential_anagram.pop();
+					input_string_array = [...input_string_array, ...last_word.word.split("")];
+					word_index = last_word.index + 1;
+				}
+
+
 				if(potential_anagram_str.length != input_string.length) {
-					let last_word = potential_anagram.pop();
-
-					if(last_word.index + 1 < words_match_array.length) {
-						input_string_array = [...input_string_array, ...last_word.word.split("")];
-
-						word_index = last_word.index + 1;
-						createAnagramPhrases();
+						
+					removeLastWordFromPotentialAnagram();
+					
+					if(last_word.index + 1 == words_match_array.length) {
+						removeLastWordFromPotentialAnagram();
 					}
+					
+					setTimeout(function() {
+						createAnagramPhrases();
+					});
 				}
 				else {
-					anagram_phrases_array.push(potential_anagram);
+
+					let anagram_phrase_found_once = false;
+
+					for(let i = 0; i < anagram_phrases_array.length; i++) {
+						if(compareTwoArrayIfAreEqual(anagram_phrases_array[i], potentialAnagramMappedArray(potential_anagram))) {
+							anagram_phrase_found_once = true;
+							removeLastWordFromPotentialAnagram();
+							setTimeout(function() {
+								createAnagramPhrases();
+							});
+						}
+					}
+					
+					if(!anagram_phrase_found_once) {
+						let anagram_phrase = potentialAnagramMappedArray(potential_anagram);
+						output_phrases.innerHTML += anagram_phrase.join(" ") + "<br>";
+
+						anagram_phrases_array.push(anagram_phrase);
+						potential_anagram  = [];
+						input_string_array = input_string.split("");
+						word_index = 0;
+						setTimeout(function() {
+							createAnagramPhrases();	
+						});
+					}
 				}
+			}
+
+
+			function compareTwoArrayIfAreEqual(arr1, arr2) {
+				for(let i = 0; i < arr1.length; i++) {
+					if(arr1[i] != arr2[i])
+						return false;
+				}
+				return true;
+			}
+
+			function potentialAnagramMappedArray(potential_anagram) {
+				return potential_anagram.map(function(elem) {
+					return elem.word;
+				});
 			}
 
 
