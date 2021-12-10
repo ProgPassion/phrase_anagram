@@ -29,7 +29,7 @@
 
 			var anagrams_num;
 			var input_string;
-			var original_string;
+			var input_string_array;
 
 			var word_index = 0;
 
@@ -38,7 +38,7 @@
 
 				anagrams_num = document.getElementById("anagrams_num").value;
 				input_string = document.getElementById("phrase_input").value.replace(/\s/g, '');
-				original_string = input_string;
+				input_string_array = input_string.split("");
 
 				findPotentionalWordsForAnagram();				
 				createAnagramPhrases();
@@ -62,48 +62,51 @@
 				});
 			}
 
-			function createAnagramPhrases() {
 
-				let input_string_array = input_string.split("");
 
-				function checkWordInRemainingString(index) {
+			function checkWordInRemainingString(index) {
 
-					let flag = true;
+				let tmp_word_array    = words_match_array[index].split("");
+				let orig_string_array = [...input_string_array];
 
-					words_match_array[index].split("").forEach(function(word_char) {
-						
-						if(input_string_array.includes(word_char)) {
-							input_string_array.splice(input_string_array.indexOf(word_char), 1);
-						}
-						else {
-							flag = false;
-						}
-					});
+				for(let i = 0; i < tmp_word_array.length; i++) {
 
-					return flag;
+					if(orig_string_array.includes(tmp_word_array[i])) {
+						orig_string_array.splice(orig_string_array.indexOf(tmp_word_array[i]), 1);
+					}
+					else {
+						return false;
+					}
 				}
+
+				input_string_array = [...orig_string_array];
+				return true;
+			}
+
+
+			function createAnagramPhrases() {
 
 				for(let i = word_index; i < words_match_array.length; i++) {
 
-					//let input_string_array = input_string.split("");
 					if(checkWordInRemainingString(i)) {
+						
 						potential_anagram.push({word: words_match_array[i], index: i});
-						input_string = input_string_array.join("");
-						console.log(input_string);
-						console.log(...potential_anagram);
 					}
 				}
+
 
 				let potential_anagram_str = "";
 				for(let i = 0; i < potential_anagram.length; i++) {
 					potential_anagram_str += potential_anagram[i].word;
 				}		
 
-				if(potential_anagram_str.length != original_string.length) {
+
+				if(potential_anagram_str.length != input_string.length) {
 					let last_word = potential_anagram.pop();
 
 					if(last_word.index + 1 < words_match_array.length) {
-						input_string += last_word.word;
+						input_string_array = [...input_string_array, ...last_word.word.split("")];
+
 						word_index = last_word.index + 1;
 						createAnagramPhrases();
 					}
