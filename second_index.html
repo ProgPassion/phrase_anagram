@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Prase Palindrome</title>
+		<title>Anagram Phrases</title>
 	</head>
 	<body>
 		<table>
@@ -10,7 +10,7 @@
 				<td><input id="phrase_input" type="text"></td>
 			</tr>
 			<tr>
-				<td>Palindroms Number:</td>
+				<td>Anagrams Number:</td>
 				<td><input id="anagrams_num"></td>
 			</tr>
 			<tr>
@@ -21,12 +21,13 @@
 		<script type="text/javascript" src="english_words.js"></script>
 		<script type="text/javascript">
 			//var words_list --> english_words.js
-			var button = document.getElementById("result");
+			
+			var button         = document.getElementById("result");
 			var output_phrases = document.getElementById("output_phrase");
 			
-			var anagram_phrases_array = [];
-			var words_match_array = [];
-			var potential_anagram = [];
+			var anagram_phrases_array;
+			var words_match_array;
+			var potential_anagram;
 
 			var anagrams_num;
 			var input_string;
@@ -35,31 +36,38 @@
 			var word_index = 0;
 
 
-			function shuffle(array) {
-				let currentIndex = array.length,  randomIndex;
-
-				// While there remain elements to shuffle...
-				while (currentIndex != 0) {
-
-					// Pick a remaining element...
-					randomIndex = Math.floor(Math.random() * currentIndex);
-					currentIndex--;
-
-					// And swap it with the current element.
-					[array[currentIndex], array[randomIndex]] = [
-					  array[randomIndex], array[currentIndex]];
-				}
-
-				return array;
-			}
-
-			shuffle(words_list);
-
 			button.addEventListener("click", function() {
+
+				anagram_phrases_array = [];
+				words_match_array     = [];
+				potential_anagram     = [];
+
+				(function shuffle(array) {
+
+					/*
+						IIFE -> Immediately Invoked Function Expression
+						A function expression that is used to be invoked at the moment that the browser engine
+						finds it without the need to call and invoke it manually
+					*/
+					let currentIndex = array.length,  randomIndex;
+
+					// While there remain elements to shuffle...
+					while (currentIndex != 0) {
+
+						// Pick a remaining element...
+						randomIndex = Math.floor(Math.random() * currentIndex);
+						currentIndex--;
+
+						// And swap it with the current element.
+						[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+					}
+
+				})(words_list);
 
 				anagrams_num = document.getElementById("anagrams_num").value;
 				input_string = document.getElementById("phrase_input").value.replace(/\s/g, '');
 				input_string_array = input_string.split("");
+				output_phrases.innerHTML = "";
 
 				findPotentionalWordsForAnagram();				
 				createAnagramPhrases();
@@ -107,10 +115,20 @@
 
 			function createAnagramPhrases() {
 
-				for(let i = word_index; i < words_match_array.length; i++) {
+				/*
+					Exit from the main function that keeps calling him self after finding enough anagrams
+					according to the number that is given as input from the user
+				*/
+				if(anagram_phrases_array.length == anagrams_num) {
+					output_phrases.innerHTML += "<br><br>Search for anagrams finished!!";
+					return;
+				}
 
+
+				
+
+				for(let i = word_index; i < words_match_array.length; i++) {
 					if(checkWordInRemainingString(i)) {
-						
 						potential_anagram.push({word: words_match_array[i], index: i});
 					}
 				}
@@ -119,16 +137,22 @@
 				let potential_anagram_str = "";
 				for(let i = 0; i < potential_anagram.length; i++) {
 					potential_anagram_str += potential_anagram[i].word;
-				}		
-
+				}
 
 
 				let last_word;
 
 				function removeLastWordFromPotentialAnagram() {
-					last_word = potential_anagram.pop();
+
+					/*
+						If the combination of matched word till now doesn't make the length of the input_string and the loop
+						through all potential words have arrived at the end, pop out the last word from potential_anagram array
+						and restart the loop at the index of that word + 1, so you can try for different matches
+					*/
+
+					last_word          = potential_anagram.pop();
+					word_index         = last_word.index + 1;
 					input_string_array = [...input_string_array, ...last_word.word.split("")];
-					word_index = last_word.index + 1;
 				}
 
 
@@ -136,7 +160,11 @@
 						
 					removeLastWordFromPotentialAnagram();
 					
-					if(last_word.index + 1 == words_match_array.length) {
+					if(last_word.index + 1 == words_match_array.length) { 
+						/*
+							if the index of the last word is at the end of the array of potential words (words_match_array)
+							pop out again another word so you can continue with another combination of word matching
+						*/
 						removeLastWordFromPotentialAnagram();
 					}
 					
@@ -149,9 +177,15 @@
 					let anagram_phrase_found_once = false;
 
 					for(let i = 0; i < anagram_phrases_array.length; i++) {
-						if(compareTwoArrayIfAreEqual(anagram_phrases_array[i], potentialAnagramMappedArray(potential_anagram))) {
-							anagram_phrase_found_once = true;
+						if(compareTwoArrays(anagram_phrases_array[i], potentialAnagramMappedArray(potential_anagram))) {
+
+							/*
+								This if statement makes a check if the anagram phrase found exists inside the anagram_phrases array.
+								If so pop the last word again from the potential_anagram and restart the word match again
+							*/
+							anagram_phrase_found_once = true; 
 							removeLastWordFromPotentialAnagram();
+							
 							setTimeout(function() {
 								createAnagramPhrases();
 							});
@@ -159,13 +193,26 @@
 					}
 					
 					if(!anagram_phrase_found_once) {
-						let anagram_phrase = potentialAnagramMappedArray(potential_anagram);
-						output_phrases.innerHTML += anagram_phrase.join(" ") + "<br>";
 
-						anagram_phrases_array.push(anagram_phrase);
+						/*
+							The anagram_phrase_found_once flag is used to prevent the dublicate of anagram found to be stored in the 
+							anagram_phrase_array, also its used to prevent from recalling setTimeout again after being called once from the
+							upper for loop.
+
+							The build in function setTimeout is a good hack when using recursion to prevent the stack overflow happening when 
+							call the function itself lots of time.
+
+							setTimeout is part of the browser EventListener that is always executed after the browser engine has run the script
+							from the top to the bottom
+						*/
+
+						output_phrases.innerHTML += potentialAnagramMappedArray(potential_anagram).join(" ") + "<br>";
+						anagram_phrases_array.push(potentialAnagramMappedArray(potential_anagram));
+
 						potential_anagram  = [];
 						input_string_array = input_string.split("");
-						word_index = 0;
+						word_index         = 0;
+
 						setTimeout(function() {
 							createAnagramPhrases();	
 						});
@@ -174,7 +221,7 @@
 			}
 
 
-			function compareTwoArrayIfAreEqual(arr1, arr2) {
+			function compareTwoArrays(arr1, arr2) {
 				for(let i = 0; i < arr1.length; i++) {
 					if(arr1[i] != arr2[i])
 						return false;
@@ -188,8 +235,6 @@
 				});
 			}
 
-
-			
 		</script>
 	</body>
 </html>
