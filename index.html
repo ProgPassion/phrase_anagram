@@ -20,14 +20,44 @@
 		<div id="output_phrase"></div>
 		<script type="text/javascript" src="english_words.js"></script>
 		<script type="text/javascript">
+			
+			/*
+				Add a new Array method in the Javascript built in Array function constructor
+				so it can be available to be accessed by every array built in current javascript
+				code.  
+			*/
+
+			Array.prototype.shuffle = function() {
+
+				let currentIndex = this.length,  randomIndex;
+
+				// While there remain elements to shuffle...
+				while (currentIndex != 0) {
+
+					// Pick a remaining element...
+					randomIndex = Math.floor(Math.random() * currentIndex);
+					currentIndex--;
+
+					// And swap it with the current element.
+					[this[currentIndex], this[randomIndex]] = [this[randomIndex], this[currentIndex]];
+				}
+
+				return this;
+			}	
+
+		</script>
+		<script type="text/javascript">
 			//var words_list --> english_words.js
 			
 			var button         = document.getElementById("result");
 			var output_phrases = document.getElementById("output_phrase");
 			
-			var anagram_phrases_array;
-			var words_match_array;
-			var potential_anagram;
+			var anagram_phrases_array; //This array will contain all the anagram phrases found during the app process
+			var words_match_array; //This array will contain all the words that their characters are part of the main input_phrase from the user
+			var potential_anagram; /*
+										This array will contain every word that is potential for the combination of the anagram phrase,
+										it will contain literal objects with this format {word: string, index: num}
+									*/  
 
 			var anagrams_num;
 			var input_string;
@@ -42,28 +72,6 @@
 				words_match_array     = [];
 				potential_anagram     = [];
 
-				(function shuffle(array) {
-
-					/*
-						IIFE -> Immediately Invoked Function Expression
-						A function expression that is used to be invoked at the moment that the browser engine
-						finds it without the need to call and invoke it manually
-					*/
-					let currentIndex = array.length,  randomIndex;
-
-					// While there remain elements to shuffle...
-					while (currentIndex != 0) {
-
-						// Pick a remaining element...
-						randomIndex = Math.floor(Math.random() * currentIndex);
-						currentIndex--;
-
-						// And swap it with the current element.
-						[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-					}
-
-				})(words_list);
-
 				anagrams_num = document.getElementById("anagrams_num").value;
 				input_string = document.getElementById("phrase_input").value.replace(/\s/g, '');
 				input_string_array = input_string.split("");
@@ -75,7 +83,19 @@
 
 			function findPotentionalWordsForAnagram() {
 
-				words_list.forEach(function(tmp_word) {
+				/*
+					The logic of potential anagram words is:
+					1. Take the words_list array, shuffle it and iterate throw it and get each word individually
+					2. Take that individual word and split it by characters and create a new temporary array
+					with these characters.
+					3. Split the input string into characters too and start to iterate the characters of the input_string,
+					if the current character is part of the temporary word array remove that character from
+					the temporary word array.
+					4. After iterating all the input_string check if at the temporary word array has remained any character.
+					If not, then it means that we have a potential word for the Anagram 
+				*/
+
+				words_list.shuffle().forEach(function(tmp_word) {
 
 					var tmp_word_array = tmp_word.split("");
 
@@ -94,6 +114,22 @@
 
 
 			function checkWordInRemainingString(index) {
+
+				
+				/*
+					This function is invoked inside the words_match_array iteration
+					It takes the current index for getting the word from array and split 
+					the specific potential word for anagram in characters.
+					We also create an orig_string_array with the current input_string_array values.
+					(May it be the total input string, or some part of it)
+
+					We iterate throw the tmp_word_array characters which is one of the potential 
+					anagram's word and we check if each character is part of the orig_string_array
+
+					If all the iteration finishes withou returning false we assing the input_string_array
+					with the remaining values from orig_string_array so we can continue finding
+					other words from potential anagram words array (words_match_array)
+				*/
 
 				let tmp_word_array    = words_match_array[index].split("");
 				let orig_string_array = [...input_string_array];
@@ -116,9 +152,10 @@
 			function createAnagramPhrases() {
 
 				/*
-					Exit from the main function that keeps calling him self after finding enough anagrams
+					Exit from the main function that keeps calling himself after finding enough anagrams
 					according to the number that is given as input from the user
 				*/
+
 				if(anagram_phrases_array.length == anagrams_num) {
 					output_phrases.innerHTML += "<br><br>Search for anagrams finished!!";
 					return;
